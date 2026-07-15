@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/* ---------------------------------------------------------
+   Design tokens
+   Theme: an overnight highway ticket counter - deep transit
+   navy, marigold route-sign accent, cream paper stock.
+   --------------------------------------------------------- */
+.booking-wizard {
+  --night: #14213D;
+  --night-soft: #1F2E52;
+  --marigold: #F2A93B;
+  --marigold-deep: #D98A1E;
+  --cream: #FBF7F0;
+  --paper: #FFFFFF;
+  --ink: #1B2233;
+  --slate: #5B6B82;
+  --line: #E4DFD3;
+  --available: #2F9E63;
+  --available-bg: #E9F5EE;
+  --booked-bg: #E7E9EE;
+  --booked-fg: #9AA3B5;
+  --danger: #C4453A;
+  --danger-bg: #FBEAE8;
+  --success: #2F9E63;
+  --success-bg: #E9F5EE;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--cream);
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px -20px rgba(20, 33, 61, 0.35);
+}
+
+/* ---------------- Header / step tracker ---------------- */
+.booking-wizard__header {
+  background: var(--night);
+  color: var(--cream);
+  padding: 20px 24px 16px;
+}
+
+.trip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+  font-family: var(--font-display);
+}
+.trip-header__route { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em; }
+.trip-header__operator { font-size: 0.8rem; color: #B9C2D9; font-family: var(--font-body); }
+
+.step-tracker {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 4px;
+}
+.step-tracker__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: #7C87A3;
+  position: relative;
+}
+.step-tracker__item::after {
+  content: '';
+  position: absolute;
+  top: 11px;
+  left: 55%;
+  width: 90%;
+  height: 1px;
+  background: #3A4A72;
+  z-index: 0;
+}
+.step-tracker__item:last-child::after { display: none; }
+.step-tracker__dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--night-soft);
+  border: 1px solid #3A4A72;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  z-index: 1;
+}
+.step-tracker__item--done .step-tracker__dot {
+  background: var(--available);
+  border-color: var(--available);
+  color: var(--night);
+}
+.step-tracker__item--active .step-tracker__dot {
+  background: var(--marigold);
+  border-color: var(--marigold);
+  color: var(--night);
+}
+.step-tracker__item--active .step-tracker__label { color: var(--marigold); font-weight: 600; }
+
+/* ---------------- Body / footer ---------------- */
+.booking-wizard__body { padding: 24px; background: var(--paper); min-height: 320px; }
+.booking-wizard__footer {
+  display: flex; justify-content: space-between;
+  padding: 16px 24px; background: var(--paper); border-top: 1px solid var(--line);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  margin: 0 0 12px;
+  color: var(--night);
+}
+
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  padding: 11px 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: transform 0.08s ease, box-shadow 0.15s ease;
+}
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn--primary { background: var(--marigold); color: var(--night); }
+.btn--primary:not(:disabled):hover { box-shadow: 0 6px 16px -4px rgba(242, 169, 59, 0.6); }
+.btn--ghost { background: transparent; color: var(--slate); border: 1px solid var(--line); }
+.btn--full { width: 100%; margin-top: 16px; }
+
+/* ---------------- Seat map ---------------- */
+.seatmap__legend { display: flex; gap: 16px; margin-bottom: 16px; font-size: 0.78rem; color: var(--slate); }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.dot--available { background: var(--available-bg); border: 1px solid var(--available); }
+.dot--selected { background: var(--marigold); }
+.dot--booked { background: var(--booked-bg); border: 1px solid var(--booked-fg); }
+
+.seatmap__decks { display: flex; gap: 28px; flex-wrap: wrap; }
+.seatmap__deck-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--slate); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+.seatmap__row { display: flex; gap: 8px; margin-bottom: 8px; }
+
+.seat {
+  width: 58px; height: 52px;
+  border-radius: 8px;
+  border: 1px solid var(--available);
+  background: var(--available-bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+.seat__number { font-size: 0.7rem; color: var(--ink); font-weight: 600; }
+.seat__price { font-size: 0.65rem; color: var(--slate); }
+.seat--selected { background: var(--marigold); border-color: var(--marigold-deep); }
+.seat--selected .seat__number, .seat--selected .seat__price { color: var(--night); }
+.seat--booked { background: var(--booked-bg); border-color: var(--booked-bg); color: var(--booked-fg); cursor: not-allowed; }
+.seat--booked .seat__number, .seat--booked .seat__price { color: var(--booked-fg); }
+
+/* ---------------- Boarding/dropping points ---------------- */
+.boarding-drop { display: flex; flex-direction: column; gap: 24px; }
+.point-group__heading { font-family: var(--font-display); font-size: 0.9rem; color: var(--night); margin-bottom: 10px; }
+.point-list { display: flex; flex-direction: column; gap: 8px; }
+.point-card {
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px;
+  cursor: pointer;
+}
+.point-card--active { border-color: var(--marigold); background: #FFF8EC; }
+.point-card__time { font-family: var(--font-mono); font-size: 0.8rem; color: var(--night); min-width: 52px; }
+.point-card__body { display: flex; flex-direction: column; }
+.point-card__name { font-weight: 600; font-size: 0.88rem; }
+.point-card__address { font-size: 0.75rem; color: var(--slate); }
+
+/* ---------------- Passenger form ---------------- */
+.passenger-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.passenger-card { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.passenger-card__seat { font-family: var(--font-mono); font-size: 0.78rem; color: var(--night); min-width: 64px; }
+.passenger-card__fields { display: flex; gap: 8px; flex: 1; }
+.passenger-card__fields input, .passenger-card__fields select { flex: 1; min-width: 0; }
+.contact-fields { display: flex; gap: 8px; }
+input, select {
+  font-family: var(--font-body);
+  border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; font-size: 0.85rem;
+}
+input:focus, select:focus { outline: 2px solid var(--marigold); outline-offset: 1px; }
+.hint-text { font-size: 0.75rem; color: var(--slate); margin-top: 8px; }
+
+/* ---------------- Fare summary: ticket-stub signature ---------------- */
+.ticket-stub {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.ticket-stub__row { display: flex; justify-content: space-between; font-size: 0.88rem; padding: 4px 0; }
+.ticket-stub__row--muted { color: var(--slate); font-size: 0.8rem; }
+.ticket-stub__row--total { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--night); }
+.ticket-stub__divider { height: 1px; background: var(--line); margin: 10px 0; }
+.ticket-stub__divider--perforated {
+  height: 0; border-top: 2px dashed #C9C2AF; margin: 12px 0;
+}
+
+/* ---------------- UPI payment ---------------- */
+.upi-payment { text-align: center; }
+.countdown { display: flex; flex-direction: column; align-items: center; margin-bottom: 16px; }
+.countdown__label { font-size: 0.75rem; color: var(--slate); text-transform: uppercase; letter-spacing: 0.08em; }
+.countdown__clock { font-family: var(--font-mono); font-size: 2.2rem; font-weight: 600; color: var(--night); }
+.countdown--warning .countdown__clock { color: var(--marigold-deep); }
+.countdown--critical .countdown__clock { color: var(--danger); }
+
+.qr-frame {
+  display: inline-flex; padding: 16px; background: var(--paper);
+  border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px;
+}
+.upi-amount { font-size: 0.95rem; margin: 8px 0 4px; }
+.upi-uri-text { word-break: break-all; font-family: var(--font-mono); font-size: 0.68rem; }
+
+/* ---------------- Status banners ---------------- */
+.status-banner {
+  border-radius: 10px; padding: 14px 16px; font-size: 0.88rem; margin-top: 12px;
+}
+.status-banner--success { background: var(--success-bg); color: var(--success); }
+.status-banner--danger { background: var(--danger-bg); color: var(--danger); }
