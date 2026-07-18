@@ -95,6 +95,15 @@ app.include_router(payments.router)
 app.include_router(users.router)
 app.include_router(admin.router)
 
+@app.get("/health", tags=["Health"])
+def health_check():
+    """Health check endpoint for deployment verification."""
+    return {
+        "status": "healthy",
+        "database": "connected",
+        "version": settings.APP_VERSION,
+    }
+
 
 # ============================================================
 # Serve React Frontend (Production)
@@ -110,11 +119,6 @@ if os.path.exists(frontend_dist):
     assets_dir = os.path.join(frontend_dist, "assets")
 
     if os.path.exists(assets_dir):
-@app.get("/health")
-async def health_check():
-    """Health check endpoint for deployment verification."""
-    return {"status": "ok"}
-
         app.mount(
             "/assets",
             StaticFiles(directory=assets_dir),
@@ -163,14 +167,6 @@ def root():
     }
 
 
-@app.get("/health", tags=["Health"])
-def health_check():
-    """Detailed health check."""
-    return {
-        "status": "healthy",
-        "database": "connected",
-        "version": settings.APP_VERSION,
-    }
 
 
 # Coupon validation endpoint (public-facing)
@@ -200,3 +196,5 @@ def validate_coupon_endpoint(
         )
         return result
 
+    finally:
+        db.close()
