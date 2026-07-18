@@ -110,6 +110,11 @@ if os.path.exists(frontend_dist):
     assets_dir = os.path.join(frontend_dist, "assets")
 
     if os.path.exists(assets_dir):
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment verification."""
+    return {"status": "ok"}
+
         app.mount(
             "/assets",
             StaticFiles(directory=assets_dir),
@@ -195,9 +200,3 @@ def validate_coupon_endpoint(
         )
         return result
 
-    finally:
-        db.close()
-@app.get("/health")
-async def health_check():
-    """Health check endpoint for deployment verification."""
-    return {"status": "ok"}
