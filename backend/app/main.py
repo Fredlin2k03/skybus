@@ -197,3 +197,7 @@ def validate_coupon_endpoint(
 
     finally:
         db.close()
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment verification."""
+    return {"status": "ok"}
