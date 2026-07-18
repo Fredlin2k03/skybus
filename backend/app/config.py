@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     SMTP_USER: str = os.getenv("SMTP_USER", "")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
     FROM_EMAIL: str = os.getenv("FROM_EMAIL", "noreply@skybus.in")
+    ACS_CONNECTION_STRING: str = os.getenv("ACS_CONNECTION_STRING", "")
 
     # Azure Storage
     AZURE_STORAGE_CONNECTION: str = os.getenv("AZURE_STORAGE_CONNECTION", "")

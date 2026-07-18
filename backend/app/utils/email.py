@@ -1,14 +1,13 @@
 """
 Email utility for sending booking confirmations and notifications.
-Uses SMTP with fallback to console output in development.
+Uses Azure Communication Services Email (replaces raw SMTP, which Gmail
+blocks from Azure-hosted senders regardless of credential correctness).
 """
 
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
 import logging
 from typing import Optional
+
+from azure.communication.email import EmailClient
 
 from app.config import settings
 
@@ -24,9 +23,9 @@ def send_email(
     attachment_name: Optional[str] = None,
 ) -> bool:
     """
-    Send an email using SMTP.
+    Send an email using Azure Communication Services.
     Falls back to logging in development mode.
-    
+
     Args:
         to_email: Recipient email address
         subject: Email subject
@@ -34,7 +33,7 @@ def send_email(
         plain_body: Plain text fallback
         attachment: Optional file attachment bytes
         attachment_name: Attachment filename
-    
+
     Returns:
         True if sent successfully, False otherwise
     """
@@ -42,36 +41,43 @@ def send_email(
         logger.info(f"[DEV EMAIL] To: {to_email}, Subject: {subject}")
         logger.info(f"[DEV EMAIL] Body preview: {html_body[:200]}...")
         return True
-    
+
+    if not settings.ACS_CONNECTION_STRING:
+        logger.error("ACS_CONNECTION_STRING not configured - cannot send email")
+        return False
+
     try:
-        msg = MIMEMultipart("alternative")
-        msg["From"] = f"SkyBus <{settings.FROM_EMAIL}>"
-        msg["To"] = to_email
-        msg["Subject"] = subject
-        
+        client = EmailClient.from_connection_string(settings.ACS_CONNECTION_STRING)
+
+        message = {
+            "senderAddress": settings.FROM_EMAIL,
+            "recipients": {
+                "to": [{"address": to_email}]
+            },
+            "content": {
+                "subject": subject,
+                "html": html_body,
+            },
+        }
         if plain_body:
-            msg.attach(MIMEText(plain_body, "plain"))
-        msg.attach(MIMEText(html_body, "html"))
-        
-        if attachment and attachment_name:
-            att = MIMEApplication(attachment)
-            att.add_header("Content-Disposition", "attachment", filename=attachment_name)
-            msg.attach(att)
-        
-        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-            server.starttls()
-            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            server.sendmail(settings.FROM_EMAIL, to_email, msg.as_string())
-        
-        logger.info(f"Email sent to {to_email}: {subject}")
+            message["content"]["plainText"] = plain_body
+
+        # Note: attachments use a different shape in ACS (base64 content +
+        # contentType) - not wired up here since the current app doesn't
+        # send any; add if needed later.
+
+        poller = client.begin_send(message)
+        result = poller.result()
+
+        logger.info(f"Email sent to {to_email}: {subject} (status: {result['status']})")
         return True
-    
+
     except Exception as e:
         logger.error(f"Failed to send email to {to_email}: {str(e)}")
         return False
 
 
-def send_booking_confirmation(booking_id: str, to_email: str, passenger_name: str, 
+def send_booking_confirmation(booking_id: str, to_email: str, passenger_name: str,
                               route: str, date: str, departure: str, seats: str) -> bool:
     """Send booking confirmation email."""
     subject = f"SkyBus Booking Confirmed - {booking_id}"
@@ -79,7 +85,7 @@ def send_booking_confirmation(booking_id: str, to_email: str, passenger_name: st
     <html>
     <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0;">🚌 SkyBus</h1>
+            <h1 style="color: white; margin: 0;">SkyBus</h1>
             <p style="color: rgba(255,255,255,0.9); margin-top: 5px;">Booking Confirmed!</p>
         </div>
         <div style="padding: 30px; background: #f9fafb;">
@@ -107,7 +113,7 @@ def send_booking_confirmation(booking_id: str, to_email: str, passenger_name: st
     return send_email(to_email, subject, html_body)
 
 
-def send_cancellation_email(booking_id: str, to_email: str, passenger_name: str, 
+def send_cancellation_email(booking_id: str, to_email: str, passenger_name: str,
                             refund_amount: float) -> bool:
     """Send booking cancellation email."""
     subject = f"SkyBus Booking Cancelled - {booking_id}"
@@ -115,13 +121,13 @@ def send_cancellation_email(booking_id: str, to_email: str, passenger_name: str,
     <html>
     <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #ef4444; padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0;">🚌 SkyBus</h1>
+            <h1 style="color: white; margin: 0;">SkyBus</h1>
             <p style="color: rgba(255,255,255,0.9); margin-top: 5px;">Booking Cancelled</p>
         </div>
         <div style="padding: 30px; background: #f9fafb;">
             <h2 style="color: #1f2937;">Hi {passenger_name},</h2>
             <p>Your booking <strong>{booking_id}</strong> has been cancelled.</p>
-            <p>Refund of <strong>₹{refund_amount:.2f}</strong> will be credited to your account within 5-7 business days.</p>
+            <p>Refund of <strong>Rs.{refund_amount:.2f}</strong> will be credited to your account within 5-7 business days.</p>
         </div>
     </body>
     </html>
