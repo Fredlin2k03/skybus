@@ -1,3 +1,0 @@
-﻿[
-  { "name": "DATABASE_URL", "value": "@Microsoft.KeyVault(SecretUri=https://kv-skybus-prod.vault.azure.net/secrets/sql-connection-string/9d7ae0aa8f7343f5bfe5ffb307a88ef8)" }
-]
