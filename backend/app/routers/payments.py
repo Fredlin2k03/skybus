@@ -175,7 +175,7 @@ def simulate_payment_success(
     Development endpoint: Simulate a successful payment without Razorpay.
     Only available in development mode.
     """
-    if settings.ENVIRONMENT == "production":
+    if not settings.PAYMENT_SIMULATION_MODE:
         raise HTTPException(status_code=403, detail="Not available in production")
     
     booking = (
