@@ -1,4 +1,3 @@
-```python
 """
 Configuration for SkyBus application.
 Reads from environment variables (set via Azure App Service Configuration).
@@ -20,13 +19,13 @@ class Settings(BaseSettings):
     # Database - Azure SQL in production, SQLite locally
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
-        "sqlite:///./skybus.db"  # Local default
+        "sqlite:///./skybus.db"
     )
 
     # JWT
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "dev-secret-key-change-in-production")
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
 
     # Razorpay
     RAZORPAY_KEY_ID: str = os.getenv("RAZORPAY_KEY_ID", "rzp_test_xxxx")
@@ -50,4 +49,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-```
